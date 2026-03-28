@@ -1,8 +1,8 @@
 fastapi>=0.135.2
-uvicorn>=0.42.0
+uvicorn[standard]>=0.42.0
 crewai[tools]==1.11.0
 google-api-python-client>=2.193.0
 google-genai>=1.68.0
 pymongo>=4.16.0
 apscheduler>=3.11.2
-mangum>=0.19.0
+python-dotenv>=1.0.1

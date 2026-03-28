@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: ai-agent-api
+    env: python
+    plan: free
+    
+    # Source
+    repo: https://github.com/Sanket22g/MYagent_for_Ai_update_api.git
+    branch: main
+    
+    # Build configuration
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn ai_agent_app_for_summary.api:app --host 0.0.0.0 --port $PORT
+    
+    # Environment variables
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13"
+      
+      - key: PORT
+        value: "8000"
+      
+      - key: MODEL
+        sync: false
+      
+      - key: SERPER_API_KEY
+        sync: false
+      
+      - key: GEMINI_API_KEY
+        sync: false
+      
+      - key: YOUTUBE_API_KEY
+        sync: false
+      
+      - key: MONGODB_URI
+        sync: false
+      
+      - key: DISABLE_SCHEDULER
+        value: "false"
+
+databases:
+  - name: mongodb-backup
+    plan: free
+    # Note: You can optionally add MongoDB here, or use MongoDB Atlas (recommended)
+    # For now, we're using external MongoDB Atlas connection via MONGODB_URI env var
