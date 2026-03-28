@@ -9,4 +9,8 @@ if SRC_DIR not in sys.path:
 from ai_agent_app_for_summary.api import app
 
 # Netlify/AWS Lambda entry point
-handler = Mangum(app, lifespan="off")
+handler = Mangum(
+	app,
+	lifespan="off",
+	api_gateway_base_path="/.netlify/functions/api",
+)
