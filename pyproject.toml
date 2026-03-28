@@ -1,0 +1,36 @@
+[project]
+name = "ai_agent_app_for_summary"
+version = "0.1.0"
+description = "AI_Agent_app_for_summary using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "apscheduler>=3.11.2",
+    "crewai[tools]==1.11.0",
+    "fastapi>=0.135.2",
+    "google-api-python-client>=2.193.0",
+    "google-genai>=1.68.0",
+    "mangum>=0.19.0",
+    "pymongo>=4.16.0",
+    "uvicorn>=0.42.0",
+]
+
+[project.scripts]
+ai_agent_app_for_summary = "ai_agent_app_for_summary.main:run"
+run_crew = "ai_agent_app_for_summary.main:run"
+train = "ai_agent_app_for_summary.main:train"
+replay = "ai_agent_app_for_summary.main:replay"
+test = "ai_agent_app_for_summary.main:test"
+run_with_trigger = "ai_agent_app_for_summary.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
+
+[tool.uv]
+override-dependencies = [
+    "lancedb==0.30.0"
+]

@@ -1,0 +1,28 @@
+.env
+.env.*
+
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local runtime output
+final_report.json
+
+# Netlify local/build artifacts
+.netlify/
