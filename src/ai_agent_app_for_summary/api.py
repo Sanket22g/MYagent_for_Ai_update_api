@@ -237,15 +237,25 @@ async def fetch_from_mongodb():
 async def get_report():
     """Get the latest generated report"""
     try:
-        mongo_report = get_latest_report()
-        if mongo_report is not None:
-            return mongo_report
+        # Try MongoDB first
+        try:
+            mongo_report = get_latest_report()
+            if mongo_report is not None:
+                print("✅ Report retrieved from MongoDB")
+                return mongo_report
+        except Exception as mongo_error:
+            print(f"⚠️  MongoDB read failed, falling back to file: {mongo_error}")
 
+        # Fallback to file storage
         if not report_file.exists():
             raise HTTPException(status_code=404, detail="No report generated yet. Call /crew/start first.")
 
+        print("📄 Report retrieved from file storage")
         return normalize_report_file(report_file)
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"❌ Error reading report: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error reading report: {str(e)}")
 
 
