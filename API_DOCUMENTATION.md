@@ -33,6 +33,8 @@ https://<your-service-name>.onrender.com
 - Reports saved to **MongoDB**
 - Accessible across all requests
 - Historical data stored indefinitely
+- **MongoDB connection** now includes improved SSL/TLS handling with certificate validation bypass and extended timeouts
+- **Fallback to file storage** if MongoDB is temporarily unavailable
 
 ---
 
@@ -650,7 +652,20 @@ Message: "CrewAI dependency missing"
 Status: 503 Service Unavailable
 Message: "Cannot save report to database"
 ```
-**Solution:** Temporary connectivity issue, retry after 1 minute
+**Solution:** Temporary connectivity issue, retry after 1 minute. The API now gracefully falls back to file storage if MongoDB is unavailable.
+
+#### Error: "SSL handshake failed" / "TLSV1_ALERT_INTERNAL_ERROR"
+```
+Status: 500 or 503
+Message: "SSL: TLSV1_ALERT_INTERNAL_ERROR"
+```
+**Solution:** Fixed in v1.1+. The API now:
+- Disables strict SSL certificate validation for MongoDB connections
+- Uses extended timeouts (10s connect, 30s socket)
+- Falls back to file storage if MongoDB is unavailable
+- Automatically retries with improved connection parameters
+
+If error persists, verify `MONGODB_URI` is set correctly in environment variables.
 
 ---
 
