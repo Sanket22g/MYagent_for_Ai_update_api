@@ -132,6 +132,8 @@ def scheduled_report_generation():
 async def startup_event():
     """Start scheduler on app startup"""
     global scheduler_running
+    # Disable scheduler on serverless platforms (Netlify Functions, AWS Lambda, etc.)
+    # Enable on traditional web services (Render, Heroku, etc.)
     if os.getenv("NETLIFY") or os.getenv("DISABLE_SCHEDULER", "").lower() == "true":
         return
 
@@ -180,6 +182,55 @@ async def root():
 async def health():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+
+@app.get("/fetch")
+async def fetch_from_mongodb():
+    """Fetch latest report directly from MongoDB"""
+    try:
+        from pymongo import MongoClient
+        import os
+        
+        mongo_uri = os.getenv("MONGODB_URI")
+        if not mongo_uri:
+            raise HTTPException(status_code=500, detail="MongoDB URI not configured")
+        
+        # Add TLS options for SSL certificate handling
+        if "?" in mongo_uri:
+            mongo_uri = mongo_uri + "&tlsAllowInvalidCertificates=true"
+        else:
+            mongo_uri = mongo_uri + "?tlsAllowInvalidCertificates=true"
+        
+        # Connect with timeout
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        db = client[os.getenv("MONGODB_DB", "ai_agent_app")]
+        collection = db[os.getenv("MONGODB_COLLECTION", "reports")]
+        
+        # Get latest report
+        doc = collection.find_one(sort=[("created_at", -1)])
+        
+        if not doc:
+            raise HTTPException(status_code=404, detail="No reports found in MongoDB")
+        
+        report = doc.get("report", {})
+        return {
+            "success": True,
+            "source": "mongodb",
+            "report": report,
+            "metadata": {
+                "id": str(doc["_id"]),
+                "created_at": str(doc["created_at"]),
+                "source": doc.get("source", "unknown")
+            }
+        }
+        
+    except Exception as e:
+        error_msg = str(e)
+        return {
+            "success": False,
+            "error": error_msg[:200],
+            "message": "Failed to fetch from MongoDB. Check connection and credentials."
+        }
 
 
 @app.get("/report")

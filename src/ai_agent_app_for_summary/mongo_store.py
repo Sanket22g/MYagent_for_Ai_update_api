@@ -15,10 +15,21 @@ def _get_collection():
     if not mongo_uri:
         return None
 
-    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
-    db_name = os.getenv("MONGODB_DB", DEFAULT_DB_NAME)
-    collection_name = os.getenv("MONGODB_COLLECTION", DEFAULT_COLLECTION)
-    return client[db_name][collection_name]
+    # Add TLS certificate validation bypass for SSL issues
+    # This helps with certificate validation problems in certain network environments
+    if "?" in mongo_uri:
+        mongo_uri_with_tls = mongo_uri + "&tlsAllowInvalidCertificates=true"
+    else:
+        mongo_uri_with_tls = mongo_uri + "?tlsAllowInvalidCertificates=true"
+
+    try:
+        client = MongoClient(mongo_uri_with_tls, serverSelectionTimeoutMS=5000)
+        db_name = os.getenv("MONGODB_DB", DEFAULT_DB_NAME)
+        collection_name = os.getenv("MONGODB_COLLECTION", DEFAULT_COLLECTION)
+        return client[db_name][collection_name]
+    except Exception as e:
+        print(f"MongoDB connection error: {e}")
+        return None
 
 
 def save_report(report: dict[str, Any], source: str) -> str | None:
